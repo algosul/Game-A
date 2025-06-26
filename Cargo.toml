@@ -1,0 +1,8 @@
+[workspace]
+members = ["game"]
+[workspace.package]
+name = "error_reboot"
+version = "0.0.1"
+edition = "2024"
+description = "Error: Reboot"
+publish = false
