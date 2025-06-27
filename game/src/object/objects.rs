@@ -1,6 +1,1 @@
-use super::Object;
-
-
-struct Player {
-    
-}
+struct Player {}
