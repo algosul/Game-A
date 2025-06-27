@@ -13,3 +13,4 @@ wgpu = { version = "*", default-features = false, features = ["serde", "dx12", "
 tokio = { version = "*", default-features = false, features = ["full"] }
 env_logger = { version = "*", default-features = false, features = ["auto-color", "color", "humantime"] }
 rodio = { version = "*", default-features = true, features = ["mp3"] }
+marco.workspace = true

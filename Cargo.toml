@@ -1,8 +1,10 @@
 [workspace]
 resolver = "3"
-members = ["game"]
+members = ["game", "marco"]
 [workspace.package]
 version = "0.0.1"
 edition = "2024"
 description = "Error: Reboot"
 publish = false
+[workspace.dependencies]
+marco = { path = "marco" }

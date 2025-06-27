@@ -1,7 +1,6 @@
 use winit::platform::run_on_demand::EventLoopExtRunOnDemand;
 
 use crate::App;
-pub mod event_loop;
 pub trait MainLoop {
     fn run(self);
 }
