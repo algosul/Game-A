@@ -8,7 +8,7 @@ publish.workspace = true
 [dependencies]
 log = { version = "0.4", default-features = false, features = ["serde", "std"] }
 serde = { version = "1", default-features = false, features = ["derive", "std", "unstable"] }
-winit = { version = "0.30", default-features = false, features = ["serde", "wayland", "x11", "android-game-activity", "android-native-activity"] }
+winit = { version = "0.30", default-features = false, features = ["serde", "wayland", "x11", "android-game-activity", "android-native-activity", "rwh_04", "rwh_05", "rwh_06"] }
 wgpu = { version = "*", default-features = false, features = ["serde", "dx12", "metal", "vulkan"] }
 tokio = { version = "*", default-features = false, features = ["full"] }
 env_logger = { version = "*", default-features = false, features = ["auto-color", "color", "humantime"] }

@@ -3,6 +3,7 @@
 mod component;
 mod main_loop;
 mod object;
+mod render;
 mod scene;
 mod transform;
 mod utils;
@@ -86,8 +87,9 @@ impl ApplicationHandler for App {
         }
     }
 }
-fn main() {
+#[tokio::main]
+async fn main() {
     env_logger::builder().target(Stdout).init();
     let mainloop = WinitMainLoop;
-    mainloop.run()
+    mainloop.run().await
 }
