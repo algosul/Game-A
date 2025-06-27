@@ -1,41 +1,47 @@
+#![feature(portable_simd)]
+#![windows_subsystem = "windows"]
+mod component;
+mod main_loop;
+mod object;
+mod scene;
+mod transform;
+mod utils;
 use std::{collections::HashMap, io::Cursor};
 
 use env_logger::Target::Stdout;
-use rodio::{
-    source::Buffered,
-    Decoder,
-    OutputStream
-    ,
-    OutputStreamHandle
-
-    ,
-    Source,
-};
+use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
 use winit::{
     application::ApplicationHandler,
     event::{ElementState::Pressed, KeyEvent, WindowEvent},
-    event_loop::{ActiveEventLoop, EventLoop},
+    event_loop::ActiveEventLoop,
     keyboard::{Key, NamedKey},
     window::{Window, WindowAttributes, WindowId},
 };
+
+use crate::main_loop::{MainLoop, WinitMainLoop};
 struct App {
     windows:   HashMap<WindowId, Window>,
     app_sound: AppSound,
 }
 struct AppSound {
-    source: Buffered<Decoder<Cursor<&'static [u8]>>>,
-    stream: OutputStream,
-    handle: OutputStreamHandle,
+    // source: Buffered<LoopedDecoder<Cursor<&'static [u8]>>>,
+    stream:        OutputStream,
+    stream_handle: OutputStreamHandle,
+    sink:          Sink,
 }
 impl AppSound {
     fn new() -> AppSound {
-        let (stream, handle) = OutputStream::try_default().unwrap();
+        let (stream, stream_handle) = OutputStream::try_default().unwrap();
+        let sink = Sink::try_new(&stream_handle).unwrap();
         const FILE: &[u8] = include_bytes!("../rc/music/CASE WANG - Cyberpunk.mp3");
-        let source = Decoder::new_mp3(Cursor::new(FILE)).unwrap().buffered();
-        Self { source, stream, handle }
+        let source = Decoder::new_looped(Cursor::new(FILE)).unwrap().buffered();
+        sink.append(source);
+        sink.pause();
+        sink.set_volume(0.5);
+        Self { stream, stream_handle, sink }
     }
 
-    fn play(&self) { self.handle.play_raw(self.source.clone().convert_samples()).unwrap(); }
+    fn play(&self) { self.sink.play(); }
 }
 impl App {
     fn new() -> Self { Self { windows: HashMap::new(), app_sound: AppSound::new() } }
@@ -57,7 +63,7 @@ impl ApplicationHandler for App {
     fn window_event(
         &mut self, event_loop: &ActiveEventLoop, window_id: WindowId, event: WindowEvent,
     ) {
-        let window = match self.windows.get_mut(&window_id) {
+        let _window = match self.windows.get_mut(&window_id) {
             Some(window) => window,
             None => return,
         };
@@ -66,13 +72,11 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             WindowEvent::KeyboardInput {
-                device_id,
+                device_id: _device_id,
                 event: KeyEvent { logical_key, state, .. },
-                is_synthetic,
+                is_synthetic: _is_synthetic,
             } => match (logical_key, state) {
-                (Key::Named(NamedKey::Space), Pressed) => {
-                    
-                }
+                (Key::Named(NamedKey::Space), Pressed) => {}
                 (Key::Named(NamedKey::Escape), Pressed) => {
                     event_loop.exit();
                 }
@@ -82,10 +86,8 @@ impl ApplicationHandler for App {
         }
     }
 }
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     env_logger::builder().target(Stdout).init();
-    let event_loop = EventLoop::new()?;
-    let mut app = App::new();
-    event_loop.run_app(&mut app)?;
-    Ok(())
+    let mainloop = WinitMainLoop;
+    mainloop.run()
 }

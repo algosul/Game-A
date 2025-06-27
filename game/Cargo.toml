@@ -8,7 +8,7 @@ build = "build.rs"
 
 [dependencies]
 log = { version = "0.4", default-features = false, features = ["serde", "std"] }
-serde = { version = "1", default-features = false, features = ["derive", "std"] }
+serde = { version = "1", default-features = false, features = ["derive", "std", "unstable"] }
 winit = { version = "0.30", default-features = false, features = ["serde", "wayland", "x11", "android-game-activity", "android-native-activity"] }
 wgpu = { version = "*", default-features = false, features = ["serde", "dx12", "metal", "vulkan"] }
 tokio = { version = "*", default-features = false, features = ["full"] }

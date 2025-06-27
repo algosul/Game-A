@@ -1,8 +1,4 @@
-use std::{
-    env,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::{env, fs, path::Path};
 fn copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
     if !dst.exists() {
         fs::create_dir_all(dst)?;
@@ -21,8 +17,7 @@ fn copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
 }
 fn main() -> std::io::Result<()> {
     let src = Path::new("./rc");
-    let dst = env::current_dir()? 
-        .join(env::var("CARGO_TARGET_DIR").as_deref().unwrap_or("target"));
+    let dst = env::current_dir()?.join(env::var("CARGO_TARGET_DIR").as_deref().unwrap_or("target"));
     copy_dir(src, &dst)?;
     println!("cargo:rerun-if-changed={}", src.display());
     println!("cargo:rerun-if-changed=build.rs");
