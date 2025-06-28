@@ -7,10 +7,11 @@ mod render;
 mod scene;
 mod transform;
 mod utils;
-use std::{collections::HashMap, io::Cursor};
+use std::{collections::HashMap, io::Cursor, sync::Arc};
 
 use env_logger::Target::Stdout;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
+use tokio::runtime::Runtime;
 use winit::{
     application::ApplicationHandler,
     event::{ElementState::Pressed, KeyEvent, WindowEvent},
@@ -19,9 +20,12 @@ use winit::{
     window::{Window, WindowAttributes, WindowId},
 };
 
-use crate::main_loop::{MainLoop, WinitMainLoop};
-struct App {
-    windows:   HashMap<WindowId, Window>,
+use crate::{
+    main_loop::{MainLoop, WinitMainLoop},
+    render::{wgpu::WGPUSurface, Surface},
+};
+struct App<R: Surface> {
+    windows:   HashMap<WindowId, AppWindow<R>>,
     app_sound: AppSound,
 }
 struct AppSound {
@@ -29,6 +33,10 @@ struct AppSound {
     stream:        OutputStream,
     stream_handle: OutputStreamHandle,
     sink:          Sink,
+}
+struct AppWindow<R: Surface> {
+    window:  Arc<Window>,
+    surface: R,
 }
 impl AppSound {
     fn new() -> AppSound {
@@ -44,10 +52,21 @@ impl AppSound {
 
     fn play(&self) { self.sink.play(); }
 }
-impl App {
+impl<R: Surface> App<R> {
     fn new() -> Self { Self { windows: HashMap::new(), app_sound: AppSound::new() } }
+
+    fn new_window(
+        &self, event_loop: &ActiveEventLoop, wa: WindowAttributes,
+    ) -> (WindowId, AppWindow<R>) {
+        let window = Arc::new(event_loop.create_window(wa).unwrap());
+        let id = window.id();
+        let inner_size = window.inner_size();
+        let runtime = Runtime::new().unwrap();
+        let surface = runtime.block_on(async { R::new(inner_size, window.clone()).await });
+        (id, AppWindow { window, surface })
+    }
 }
-impl ApplicationHandler for App {
+impl<R: Surface> ApplicationHandler for App<R> {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         self.windows.clear();
         let wa = WindowAttributes::default()
@@ -56,8 +75,8 @@ impl ApplicationHandler for App {
             .with_resizable(true)
             .with_transparent(true)
             .with_title(env!("CARGO_PKG_DESCRIPTION"));
-        let window = event_loop.create_window(wa).unwrap();
-        self.windows.insert(window.id(), window);
+        let (id, window) = self.new_window(event_loop, wa);
+        self.windows.insert(id, window);
         self.app_sound.play();
     }
 
@@ -87,9 +106,8 @@ impl ApplicationHandler for App {
         }
     }
 }
-#[tokio::main]
-async fn main() {
+fn main() {
     env_logger::builder().target(Stdout).init();
     let mainloop = WinitMainLoop;
-    mainloop.run().await
+    mainloop.run::<WGPUSurface>()
 }

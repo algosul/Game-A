@@ -1,29 +1,18 @@
-use wgpu::{Device, Instance, Queue, Surface, SurfaceTarget, TextureFormat};
-use wgpu::rwh::HasWindowHandle;
-use winit::dpi::LogicalSize;
-use winit::window::Window;
+use std::sync::Arc;
 
-use crate::render::Renderer;
-struct WGPURender {
-    instance: Instance,
-}
-struct WGPUSurface<'a> {
-    surface: Surface<'a>,
+use wgpu::{Device, Queue, Surface, TextureFormat};
+use winit::{dpi::PhysicalSize, window::Window};
+pub struct WGPUSurface<'w> {
+    window:  Arc<Window>,
+    surface: Surface<'w>,
     device:  Device,
     queue:   Queue,
 }
-impl Renderer for WGPURender {
-    type Surface<'a> = WGPUSurface<'a>;
-
-    fn new() -> Self {
-        let instance = Instance::default();
-        Self { instance }
-    }
-
-    async fn create_surface<'window>(&self, size: LogicalSize<u32>, window: impl Into<SurfaceTarget<'window>>) -> Self::Surface<'window> {
-        let surface = self.instance.create_surface(window).expect("Failed to create surface");
-        let adapter = self
-            .instance
+impl<'w> super::Surface for WGPUSurface<'w> {
+    async fn new(size: PhysicalSize<u32>, window: Arc<Window>) -> Self {
+        let instance = wgpu::Instance::default();
+        let surface = instance.create_surface(window.clone()).expect("Failed to create surface");
+        let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference:       wgpu::PowerPreference::HighPerformance,
                 compatible_surface:     Some(&surface),
@@ -44,6 +33,6 @@ impl Renderer for WGPURender {
             view_formats: vec![TextureFormat::Rgba8UnormSrgb],
         };
         surface.configure(&device, &config);
-        Self::Surface { surface, device, queue }
+        Self { window, surface, device, queue }
     }
 }
