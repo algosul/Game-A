@@ -1,12 +1,13 @@
 use std::{any::TypeId, simd::SimdElement};
 
+use dyn_clone::DynClone;
+
 use crate::{
     component::Component,
     transform::{Transform2d, Transform3d},
-    utils::Cloneable,
 };
 pub mod objects;
-pub trait Object: Cloneable {
+pub trait Object: DynClone {
     fn update(&mut self, delta_time: f64);
     fn draw(&self);
     fn get_component_by_id(&self, type_id: TypeId) -> Option<&dyn Component>;

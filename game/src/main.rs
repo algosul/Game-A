@@ -52,6 +52,8 @@ impl AppSound {
     }
 
     fn play(&self) { self.sink.play(); }
+
+    fn pause(&self) { self.sink.pause(); }
 }
 impl<R: Surface> App<R> {
     fn new() -> Self { Self { windows: HashMap::new(), app_sound: AppSound::new() } }
@@ -78,7 +80,6 @@ impl<R: Surface> ApplicationHandler for App<R> {
             .with_title(env!("CARGO_PKG_DESCRIPTION"));
         let (id, window) = self.new_window(event_loop, wa);
         self.windows.insert(id, window);
-        self.app_sound.play();
     }
 
     fn suspended(&mut self, event_loop: &ActiveEventLoop) {
@@ -107,8 +108,17 @@ impl<R: Surface> ApplicationHandler for App<R> {
                 }
                 _ => {}
             },
+            WindowEvent::Focused(true) => {
+                self.app_sound.play();
+            }
+            WindowEvent::Focused(false) => {
+                self.app_sound.pause();
+            }
             WindowEvent::Resized(size) => {
-                window.surface.resize(size);
+                if size.width == 0 || size.height == 0 {
+                } else {
+                    window.surface.resize(size);
+                }
             }
             WindowEvent::RedrawRequested => {
                 window.surface.draw();
