@@ -1,11 +1,5 @@
 name: release
-on:
-  push:
-    tags:
-      - 'master'
-  pull_request:
-    tags:
-      - 'master'
+on: [ push, pull_request ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -45,7 +39,7 @@ jobs:
 
       - name: Run fmt check
         run: cargo fmt -- --check
-        
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
