@@ -5,7 +5,6 @@ pub mod wgpu;
 pub trait Surface {
     async fn new(size: PhysicalSize<u32>, window: Arc<Window>) -> Self
     where Self: Sized;
-}
-pub enum RendererType {
-    WGPU,
+    fn resize(&mut self, size: PhysicalSize<u32>);
+    fn draw(&mut self);
 }

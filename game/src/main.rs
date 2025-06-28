@@ -10,6 +10,7 @@ mod utils;
 use std::{collections::HashMap, io::Cursor, sync::Arc};
 
 use env_logger::Target::Stdout;
+use log::{warn, LevelFilter};
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
 use tokio::runtime::Runtime;
 use winit::{
@@ -46,7 +47,7 @@ impl AppSound {
         let source = Decoder::new_looped(Cursor::new(FILE)).unwrap().buffered();
         sink.append(source);
         sink.pause();
-        sink.set_volume(0.5);
+        sink.set_volume(0.3);
         Self { stream, stream_handle, sink }
     }
 
@@ -80,10 +81,14 @@ impl<R: Surface> ApplicationHandler for App<R> {
         self.app_sound.play();
     }
 
+    fn suspended(&mut self, event_loop: &ActiveEventLoop) {
+        warn!("APP 暂停");
+    }
+
     fn window_event(
         &mut self, event_loop: &ActiveEventLoop, window_id: WindowId, event: WindowEvent,
     ) {
-        let _window = match self.windows.get_mut(&window_id) {
+        let window = match self.windows.get_mut(&window_id) {
             Some(window) => window,
             None => return,
         };
@@ -102,12 +107,22 @@ impl<R: Surface> ApplicationHandler for App<R> {
                 }
                 _ => {}
             },
+            WindowEvent::Resized(size) => {
+                window.surface.resize(size);
+            }
+            WindowEvent::RedrawRequested => {
+                window.surface.draw();
+            }
             _ => {}
         }
     }
 }
 fn main() {
-    env_logger::builder().target(Stdout).init();
+    env_logger::builder()
+        .target(Stdout)
+        .filter_module("wgpu_core", LevelFilter::Info)
+        .filter_module("naga", LevelFilter::Info)
+        .init();
     let mainloop = WinitMainLoop;
     mainloop.run::<WGPUSurface>()
 }
