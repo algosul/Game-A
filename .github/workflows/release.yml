@@ -11,6 +11,10 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
+      - name: Install ALSA libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev alsa-utils
 
       - uses: actions/cache@v3
         with:
