@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/game/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/marco/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Error-Reboot/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/game/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>

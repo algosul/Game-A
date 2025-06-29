@@ -18,7 +18,6 @@ use wgpu::{
     StoreOp,
     Surface,
     SurfaceConfiguration,
-    TextureFormat,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 pub struct WGPUSurface<'w> {

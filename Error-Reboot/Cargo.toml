@@ -1,0 +1,11 @@
+[package]
+name = "Error-Reboot"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+publish.workspace = true
+
+[dependencies]
+game = { workspace = true, features = ["wgpu-vulkan"] }
+log = "*"
+env_logger = "0.11.8"

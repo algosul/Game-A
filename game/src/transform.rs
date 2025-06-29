@@ -43,5 +43,5 @@ where LaneCount<N>: SupportedLaneCount
 
     fn into_euler(self) -> Simd<T, N> { unimplemented!() }
 
-    fn from_euler(euler: Simd<T, N>) -> Self { unimplemented!() }
+    fn from_euler(_euler: Simd<T, N>) -> Self { unimplemented!() }
 }

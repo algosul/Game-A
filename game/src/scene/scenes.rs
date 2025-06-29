@@ -7,7 +7,7 @@ use crate::{
 #[derive(Scene)]
 pub struct DynamicScene {
     #[scene(objects)]
-    objects: Vec<Box<dyn Object + 'static>>,
+    objects: Vec<Box<dyn Object + Send>>,
 }
 impl Clone for DynamicScene {
     fn clone(&self) -> Self {
@@ -25,9 +25,12 @@ pub struct StartMenuScene {
     #[scene(object)]
     play_button: Button,
 }
-impl DynamicScene {
-    pub fn new() -> Self {
-        for mut i in (vec![68].into_iter()) {}
-        Self { objects: Vec::new() }
+impl Default for DynamicScene {
+    fn default() -> Self {
+        Self::new()
     }
+}
+
+impl DynamicScene {
+    pub fn new() -> Self { Self { objects: Vec::new() } }
 }
