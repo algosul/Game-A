@@ -1,8 +1,8 @@
 #![feature(log_syntax)]
 #![feature(proc_macro_diagnostic)]
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
-use syn::{parse_macro_input, AttrStyle, Data, DeriveInput, Fields, Meta};
+use quote::{ToTokens, quote};
+use syn::{AttrStyle, Data, DeriveInput, Fields, Meta, parse_macro_input};
 #[proc_macro_derive(Scene, attributes(scene))]
 pub fn scene_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
