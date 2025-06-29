@@ -171,6 +171,7 @@ impl MainLoop for WInitMainLoop {
                     .write()
                     .unwrap()
                     .load_scene(Arc::new(Mutex::new(DynamicScene::new())));
+                let world = world;
                 while is_running.load(Ordering::SeqCst) {
                     world.read().unwrap().update();
                 }

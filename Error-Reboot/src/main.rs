@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use env_logger::Target::Stdout;
 use game::{
     main_loop::{MainLoop, WInitMainLoop},

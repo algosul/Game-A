@@ -1,4 +1,6 @@
 #![feature(portable_simd)]
+#![feature(lock_value_accessors)]
+#![feature(thread_sleep_until)]
 #![allow(async_fn_in_trait)]
 pub mod component;
 pub mod main_loop;

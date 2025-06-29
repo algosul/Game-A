@@ -23,4 +23,5 @@ env_logger = { version = "*", default-features = false, features = ["auto-color"
 rodio = { version = "*", default-features = true, features = ["mp3"] }
 dyn-clone = { version = "*", default-features = false, features = [] }
 chrono = { version = "*", default-features = false, features = [] }
+freetype = { version = "*", default-features = false, features = [] }
 marco.workspace = true

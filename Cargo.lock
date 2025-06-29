@@ -646,12 +646,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
 
 [[package]]
+name = "freetype"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a440748e063798e4893ceb877151e84acef9bea9a8c6800645cf3f1b3a7806e"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "game"
 version = "0.0.1"
 dependencies = [
  "chrono",
  "dyn-clone",
  "env_logger",
+ "freetype",
  "log",
  "marco",
  "rodio",
