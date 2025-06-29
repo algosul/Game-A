@@ -24,7 +24,7 @@ jobs:
           toolchain: nightly
           target: ${{ matrix.target }}
           override: true
-          components: rustfmt, clippy
+          components: rustfmt, clippy, test
 
       - uses: actions/cache@v4
         with:
