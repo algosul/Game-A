@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - 'v*'
+env:
+  CARGO_TERM_COLOR: always
+  BIN_NAME: "Error-Reboot"
 jobs:
   build:
     strategy:
@@ -18,9 +21,14 @@ jobs:
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             suffix: x86_64-windows.7z
+      fail-fast: false
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Get Tag Name
+        id: tagName
+        uses: olegtarasov/get-tag@v2
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -76,28 +84,28 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform }}
-          path: |
-            target/release/*
-          if-no-files-found: error
-          retention-days: 7
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate Version Tag
-        id: tag_version
-        uses: anothrNick/github-tag-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch
-      - name: Create Release
+          args: --verbose --release --all-features
+      - name: Build Release
+        shell: bash
+        run: |
+          mkdir -p dist temp
+          cp -r README.md ./docs temp/
+          cd temp
+          version="${{ steps.tagName.outputs.tag }}"
+          if [ "${{ matrix.build }}" = "windows" ]; then
+            cp "../target/release/${{ env.BIN_NAME }}.exe" ./
+            7z a -r "../dist/${{ env.BIN_NAME }}-$version-${{ matrix.release-file-suffix }}" *
+          else
+            cp "../target/release/${{ env.BIN_NAME }}" ./
+            tar czf "../dist/${{ env.BIN_NAME }}-$version-${{ matrix.release-file-suffix }}" *
+          fi
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          files: target/release/*
+          tag_name: ${{ steps.tagName.outputs.tag }}
+          name: ${{ steps.changelog.outputs.title }}
+          draft: false
+          prerelease: false
+          body: ${{ steps.changelog.outputs.body }}
+          files: "dist/**"
