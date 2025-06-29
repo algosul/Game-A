@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 use env_logger::Target::Stdout;
 use game::{
     main_loop::{MainLoop, WInitMainLoop},

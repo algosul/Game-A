@@ -1,6 +1,5 @@
 #![feature(portable_simd)]
 #![allow(async_fn_in_trait)]
-#![windows_subsystem = "windows"]
 pub mod component;
 pub mod main_loop;
 pub mod object;
