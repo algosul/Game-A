@@ -28,7 +28,7 @@ jobs:
 
       - name: Get Tag Name
         id: tagName
-        uses: olegtarasov/get-tag@v2
+        uses: olegtarasov/get-tag@v2.1.4
 
       - uses: actions-rs/toolchain@v1
         with:
