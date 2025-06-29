@@ -1,8 +1,8 @@
 #![feature(log_syntax)]
 #![feature(proc_macro_diagnostic)]
 use proc_macro::TokenStream;
-use quote::{ToTokens, quote};
-use syn::{AttrStyle, Data, DeriveInput, Fields, Meta, parse_macro_input};
+use quote::{quote, ToTokens};
+use syn::{parse_macro_input, AttrStyle, Data, DeriveInput, Fields, Meta};
 #[proc_macro_derive(Scene, attributes(scene))]
 pub fn scene_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -102,11 +102,19 @@ pub fn scene_derive(input: TokenStream) -> TokenStream {
                         self.#object_fields.draw();
                     );*
                 }
-                fn get_objects<'a>(&'a self) -> Box<dyn Iterator<Item=&'a (dyn Object + Send + 'a)> + '_> {
-                    Box::new(vec![#( &self.#object_fields as &(dyn Object + Send) ),*].into_iter())
+                fn get_objects<'a>(&'a self) -> Box<dyn Iterator<
+                    Item=&'a (dyn Object + Send + 'a)
+                > + '_> {
+                    Box::new(vec![#(
+                        &self.#object_fields as &(dyn Object + Send)
+                    ),*].into_iter())
                 }
-                fn get_mut_objects<'a>(&'a mut self) -> Box<dyn Iterator<Item=&'a mut (dyn Object + Send + 'a)> + '_> {
-                    Box::new(vec![#( &mut self.#object_fields as &mut (dyn Object + Send) ),*].into_iter())
+                fn get_mut_objects<'a>(&'a mut self) -> Box<dyn Iterator<
+                    Item=&'a mut (dyn Object + Send + 'a)
+                > + '_> {
+                    Box::new(vec![#(
+                        &mut self.#object_fields as &mut (dyn Object + Send)
+                    ),*].into_iter())
                 }
             }
 
@@ -114,16 +122,30 @@ pub fn scene_derive(input: TokenStream) -> TokenStream {
         (x, objects_field) if x.is_empty() => quote! {
             impl Scene for #struct_name {
                 fn update(&mut self, delta_time: f64) {
-                    self.#objects_field.iter_mut().for_each(|object| object.update(delta_time));
+                    self.#objects_field
+                        .iter_mut()
+                        .for_each(|object| object.update(delta_time));
                 }
                 fn draw(&self) {
-                    self.#objects_field.iter().for_each(|object| object.draw());
+                    self.#objects_field
+                        .iter()
+                        .for_each(|object| object.draw());
                 }
-                fn get_objects<'a>(&'a self) -> Box<dyn Iterator<Item=&'a (dyn Object + Send + 'a)> + '_> {
-                    Box::new(self.#objects_field.iter().map(|x| x.as_ref()))
+                fn get_objects<'a>(&'a self) -> Box<dyn Iterator<
+                    Item=&'a (dyn Object + Send + 'a)>
+                + '_> {
+                    Box::new(self.#objects_field
+                        .iter()
+                        .map(|x| x.as_ref())
+                    )
                 }
-                fn get_mut_objects<'a>(&'a mut self) -> Box<dyn Iterator<Item=&'a mut (dyn Object + Send + 'a)> + '_> {
-                    Box::new(self.#objects_field.iter_mut().map(|x| x.as_mut() as &mut (dyn Object + Send + 'a)))
+                fn get_mut_objects<'a>(&'a mut self) -> Box<dyn Iterator<
+                    Item=&'a mut (dyn Object + Send + 'a)
+                > + '_> {
+                    Box::new(self.#objects_field
+                        .iter_mut()
+                        .map(|x| x.as_mut() as &mut (dyn Object + Send + 'a))
+                    )
                 }
             }
 

@@ -11,12 +11,8 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-      - name: Install ALSA libraries
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2-dev alsa-utils
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin
@@ -25,6 +21,25 @@ jobs:
             ~/.cargo/git/db
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}[1](@ref)
+
+      - name: Cache APT packages
+        id: cache-apt
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives  # APT下载的包缓存路径
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/dependencies.hash') }}  # 依赖文件哈希
+          restore-keys: |
+            ${{ runner.os }}-apt
+      - name: Generate dependencies hash
+        if: steps.cache-apt.outputs.cache-hit != 'true'
+        run: |
+          echo "libasound2-dev alsa-utils" > dependencies.list
+          sha256sum dependencies.list > dependencies.hash
+
+      - name: Install ALSA libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libasound2-dev alsa-utils
 
       - uses: actions-rs/cargo@v1
         with:
