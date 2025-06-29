@@ -42,8 +42,8 @@ jobs:
         id: cache-apt
         uses: actions/cache@v4
         with:
-          path: /var/cache/apt/archives  # APT下载的包缓存路径
-          key: ${{ runner.os }}-apt-${{ hashFiles('**/dependencies.hash') }}  # 依赖文件哈希
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/dependencies.hash') }}
           restore-keys: |
             ${{ runner.os }}-apt
       - name: Generate dependencies hash
@@ -58,28 +58,31 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libasound2-dev alsa-utils
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - name: Run fmt check
+        run: cargo fmt -- --check
 
       - name: Run clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
 
-      - name: Run fmt check
-        run: cargo fmt -- --check
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all-features
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-binaries
-          path: target/release/
+          path: |
+            target/release/*
+          if-no-files-found: error
+          retention-days: 7
   release:
     needs: build
     runs-on: ubuntu-latest
