@@ -43,6 +43,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
+            ~/.rustup/toolchain
             ~/.cargo/bin
             ~/.cargo/registry/index
             ~/.cargo/registry/cache
