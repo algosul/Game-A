@@ -61,29 +61,29 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features --target ${{ matrix.target }}
+          args: --release --all-features
 
       - uses: actions-rs/cargo@v1
         with:
-          command: test --target ${{ matrix.target }}
+          command: test
 
       - name: Run clippy
         uses: actions-rs/cargo@v1
         with:
-          command: clippy --target ${{ matrix.target }}
+          command: clippy
 
       - name: Run fmt check
-        run: cargo fmt --target ${{ matrix.target }} -- --check
+        run: cargo fmt -- --check
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-binaries
-          path: target/${{ matrix.target }}/release/
+          path: target/release/
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: softprops/action-gh-release@v1
         with:
-          files: target/${{ matrix.target }}/release/*
+          files: target/release/*
