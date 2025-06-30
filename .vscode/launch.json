@@ -1,0 +1,64 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'Error-Reboot'",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=Error-Reboot",
+					"--package=Error-Reboot",
+					"--target=x86_64-pc-windows-msvc"
+				],
+				"filter": {
+					"name": "Error-Reboot",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'Error-Reboot'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--bin=Error-Reboot",
+					"--package=Error-Reboot",
+					"--target=x86_64-pc-windows-msvc"
+				],
+				"filter": {
+					"name": "Error-Reboot",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in library 'game'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--lib",
+					"--package=game",
+					"--target=x86_64-pc-windows-msvc"
+				],
+				"filter": {
+					"name": "game",
+					"kind": "lib"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		}
+	]
+}

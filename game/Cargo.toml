@@ -20,8 +20,9 @@ winit = { version = "0.30", default-features = false, features = ["x11", "rwh_06
 wgpu = { version = "*", default-features = false, features = [] }
 tokio = { version = "*", default-features = false, features = ["full"] }
 env_logger = { version = "*", default-features = false, features = ["auto-color", "color", "humantime"] }
-rodio = { version = "*", default-features = true, features = ["mp3"] }
+rodio = { version = "*", default-features = true, features = ["mp3", "vorbis"] }
 dyn-clone = { version = "*", default-features = false, features = [] }
 chrono = { version = "*", default-features = false, features = [] }
 freetype = { version = "*", default-features = false, features = [] }
+native-dialog = { version = "*", features = ["async", "windows_dpi_awareness", "windows_visual_styles"] }
 marco.workspace = true

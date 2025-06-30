@@ -1,15 +1,20 @@
 use std::{
+    any::{Any, TypeId},
     collections::HashMap,
     io::Cursor,
+    panic,
+    panic::UnwindSafe,
+    process::exit,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
         Mutex,
         RwLock,
     },
+    thread::{spawn, JoinHandle},
 };
 
-use log::warn;
+use log::{error, warn};
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
 use tokio::runtime::Runtime;
 use winit::{
@@ -21,7 +26,12 @@ use winit::{
     window::{Window, WindowAttributes, WindowId},
 };
 
-use crate::{render::Surface, scene::scenes::DynamicScene, world::World};
+use crate::{
+    render::Surface,
+    scene::scenes::DynamicScene,
+    utils::ShowDialog,
+    world::World,
+};
 pub trait MainLoop {
     fn new() -> Self;
     fn run<S: Surface>(self);
@@ -49,7 +59,8 @@ impl<S: Surface> WInitCtx<S> {
     }
 }
 pub struct WInitMainLoop {
-    world: Arc<RwLock<World>>,
+    is_running: Arc<AtomicBool>,
+    world:      Arc<RwLock<World>>,
 }
 impl BackgroundMusicSink {
     fn new() -> BackgroundMusicSink {
@@ -116,7 +127,7 @@ impl<S: Surface> ApplicationHandler for WInitApp<S> {
             WindowEvent::Resized(physical_size) => {
                 if physical_size.width == 0 || physical_size.height == 0 {
                 } else {
-                    ctx.resize(physical_size);
+                    ctx.resize(PhysicalSize::default());
                 }
             }
             WindowEvent::KeyboardInput {
@@ -152,43 +163,67 @@ impl<S: Surface> ApplicationHandler for WInitApp<S> {
     }
 }
 impl MainLoop for WInitMainLoop {
-    fn new() -> Self { Self { world: Arc::new(RwLock::new(World::new())) } }
+    fn new() -> Self {
+        Self {
+            is_running: Arc::new(AtomicBool::new(true)),
+            world:      Arc::new(RwLock::new(World::new())),
+        }
+    }
 
     fn run<S: Surface>(self) {
-        use std::thread::spawn;
-        let is_running = Arc::new(AtomicBool::new(true));
-        let main_loop = || {
-            let event_loop =
-                winit::event_loop::EventLoop::builder().build().unwrap();
-            let mut app = WInitApp::<S>::new();
-            event_loop.run_app(&mut app).unwrap();
-        };
-        let game_loop = {
-            let is_running = is_running.clone();
-            let world = self.world.clone();
-            spawn(move || {
-                world
-                    .write()
-                    .unwrap()
-                    .load_scene(Arc::new(Mutex::new(DynamicScene::new())));
-                let world = world;
-                while is_running.load(Ordering::SeqCst) {
-                    world.read().unwrap().update();
-                }
-            })
-        };
-        let render_loop = {
-            let is_running = is_running.clone();
-            let world = self.world.clone();
-            spawn(move || {
-                while is_running.load(Ordering::SeqCst) {
-                    world.read().unwrap().draw();
-                }
-            })
-        };
-        main_loop();
-        is_running.store(false, Ordering::SeqCst);
-        game_loop.join().unwrap();
-        render_loop.join().unwrap();
+        let this = Arc::new(self);
+        let render = this.catch_spawn(|this| this.render());
+        let game = this.catch_spawn(|this| this.game());
+        this.catch(|| this.clone().main::<S>());
+        this.stop();
+        game.join().unwrap();
+        render.join().unwrap();
     }
+}
+impl WInitMainLoop {
+    fn catch<F: FnOnce() -> R + UnwindSafe, R>(self: &Arc<Self>, f: F) -> R {
+        match panic::catch_unwind(f) {
+            Ok(result) => result,
+            Err(e) => {
+                self.stop();
+                e.show_failed_dialog();
+                exit(1);
+            }
+        }
+    }
+
+    fn catch_spawn<
+        F: (FnOnce(Arc<Self>) -> R) + Send + 'static + UnwindSafe,
+        R: Send + 'static,
+    >(
+        self: &Arc<Self>, f: F,
+    ) -> JoinHandle<R> {
+        let this = self.clone();
+        spawn(move || this.clone().catch(move || f(this)))
+    }
+
+    fn main<S: Surface>(self: Arc<Self>) {
+        let event_loop =
+            winit::event_loop::EventLoop::builder().build().unwrap();
+        let mut app = WInitApp::<S>::new();
+        event_loop.run_app(&mut app).unwrap();
+    }
+
+    fn game(self: Arc<Self>) {
+        self.world
+            .write()
+            .unwrap()
+            .load_scene(Arc::new(Mutex::new(DynamicScene::new())));
+        while self.is_running.load(Ordering::SeqCst) {
+            self.world.read().unwrap().update();
+        }
+    }
+
+    fn render(self: Arc<Self>) {
+        while self.is_running.load(Ordering::SeqCst) {
+            self.world.read().unwrap().draw();
+        }
+    }
+
+    fn stop(&self) { self.is_running.store(false, Ordering::SeqCst); }
 }

@@ -1,0 +1,32 @@
+[alias]
+gbuild = "build --bin Error-Reboot"
+gdoc = "doc --no-deps"
+gtest = "test --bin Error-Reboot"
+grun = "run --bin Error-Reboot"
+
+[build]
+target = [
+    "x86_64-pc-windows-msvc", "i686-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu", "i686-unknown-linux-gnu",
+    "x86_64-unknown-linux-musl", "i686-unknown-linux-gnu",
+]
+target-dir = "target"
+rustflags = []
+rustdocflags = []
+
+[cache]
+auto-clean-frequency = "1 day"
+
+[target.x86_64-unknown-linux-musl]
+linker = "rust-lld"
+rustflags = ["-C", "linker-flavor=ld.lld"]
+
+[term]
+quiet = false                    # whether cargo output is quiet
+verbose = false                  # whether cargo provides verbose output
+color = 'auto'                   # whether cargo colorizes output
+hyperlinks = true                # whether cargo inserts links into output
+unicode = true                   # whether cargo can render output using non-ASCII unicode characters
+progress.when = 'auto'           # whether cargo shows progress bar
+progress.width = 80              # width of progress bar
+progress.term-integration = true # whether cargo reports progress to terminal emulator
