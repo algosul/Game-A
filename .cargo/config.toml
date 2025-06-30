@@ -6,9 +6,10 @@ grun = "run --bin Error-Reboot"
 
 [build]
 target = [
-    "x86_64-pc-windows-msvc", "i686-pc-windows-msvc",
-    "x86_64-unknown-linux-gnu", "i686-unknown-linux-gnu",
-    "x86_64-unknown-linux-musl", "i686-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu",
+    "x86_64-apple-drawin", "aarch64-apple-drawin",
+    "x86_64-linux-android", "aarch64-linux-android",
 ]
 target-dir = "target"
 rustflags = []
