@@ -10,8 +10,8 @@ pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH",
     "apt-get update && apt-get --assume-yes install pkgconf libasound2-dev",
 ]
-[target.x86_64-apple-drawin]
-[target.aarch64-apple-drawin]
+[target.x86_64-apple-darwin]
+[target.aarch64-apple-darwin]
 [target.x86_64-linux-android]
 [target.aarch64-linux-android]
 [build]
