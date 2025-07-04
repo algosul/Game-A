@@ -15,14 +15,36 @@ serde = ["dep:serde", "log/serde", "winit/serde", "wgpu/serde"]
 
 [dependencies]
 log = { version = "0.4", default-features = false, features = ["std"] }
-serde = { version = "1", default-features = false, features = ["derive", "std", "unstable"], optional = true }
-winit = { version = "0.30", default-features = false, features = ["x11", "rwh_06"] }
+serde = { version = "1", default-features = false, features = [
+    "derive",
+    "std",
+    "unstable",
+], optional = true }
+winit = { version = "0.30", default-features = false, features = [
+    "x11",
+    "rwh_06",
+] }
 wgpu = { version = "*", default-features = false, features = [] }
 tokio = { version = "*", default-features = false, features = ["full"] }
-env_logger = { version = "*", default-features = false, features = ["auto-color", "color", "humantime"] }
+env_logger = { version = "*", default-features = false, features = [
+    "auto-color",
+    "color",
+    "humantime",
+] }
 rodio = { version = "*", default-features = true, features = ["mp3", "vorbis"] }
 dyn-clone = { version = "*", default-features = false, features = [] }
 chrono = { version = "*", default-features = false, features = [] }
-freetype = { version = "*", default-features = false, features = [] }
-native-dialog = { version = "*", features = ["async", "windows_dpi_awareness", "windows_visual_styles"] }
+freetype-rs = { version = "*", default-features = true, features = [] }
+native-dialog = { version = "*", features = [
+    "async",
+    "windows_dpi_awareness",
+    "windows_visual_styles",
+] }
+image = { version = "*", default-features = false, features = [
+    "png",
+    "jpeg",
+    "gif",
+    "tiff",
+    "webp",
+] }
 marco.workspace = true

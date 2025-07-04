@@ -9,5 +9,6 @@ pub mod render;
 pub mod scene;
 pub mod sound;
 pub mod transform;
+pub mod type_render;
 pub mod utils;
 pub mod world;
